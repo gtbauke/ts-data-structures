@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { array, nat, property, assert } from 'fast-check'
-import { IndexOutOfBounds, LinkedList } from './linked-list'
+import { ContainerDoesNotContain, IndexOutOfBounds, LinkedList } from './linked-list'
 
 describe('Linked List', () => {
   describe('constructor', () => {
@@ -126,7 +126,6 @@ describe('Linked List', () => {
       expect(list.toString()).toBe('1, 2, 3, 10, 4, 5')
     })
   })
-
   describe('find', () => {
     it('should return null if the list is empty', () => {
       const list = new LinkedList()

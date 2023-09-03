@@ -4,15 +4,20 @@ interface LinkedListNode<T> {
   next: LinkedListNode<T> | null
 }
 
-const node = <T>(value: T): LinkedListNode<T> => ({ value, next: null } satisfies LinkedListNode<T>)
+const node = <T>(value: T): LinkedListNode<T> =>
+    ({ value, next: null }) satisfies LinkedListNode<T>
 
 export class IndexOutOfBounds extends Error {
   public constructor (index: number, length: number) {
-    super(`Index ${index} is out of bounds. Container has length ${length}`)
+    super(
+            `Index ${index} is out of bounds. Container has length ${length}`
+    )
   }
 }
 
-export class ContainerDoesNotContain<T extends { toString: () => string }> extends Error {
+export class ContainerDoesNotContain<
+    T extends { toString: () => string },
+> extends Error {
   public constructor (element: T) {
     super(`Container does not contain the element ${element.toString()}.`)
   }
@@ -75,12 +80,12 @@ export class LinkedList<T> {
   }
 
   /**
-    * Inserts a value into a specified position in the linked list
-    * @throws {IndexOutOfBounds} When the provided position is less than zero or greater or equal than the list length
-    * @param value Value to be inserted in the linked list
-    * @param at Index to insert new node
-    * @returns The linked list with the new node inserted at the correct position
-    */
+     * Inserts a value into a specified position in the linked list
+     * @throws {IndexOutOfBounds} When the provided position is less than zero or greater or equal than the list length
+     * @param value Value to be inserted in the linked list
+     * @param at Index to insert new node
+     * @returns The linked list with the new node inserted at the correct position
+     */
   public insert (value: T, at: number): this {
     if (at >= this.length || at < 0) {
       throw new IndexOutOfBounds(at, this.length)
