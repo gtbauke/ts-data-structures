@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { array, nat, property, assert } from "fast-check";
-import { IndexOutOfBounds, LinkedList } from './linked-list';
+import { array, nat, property, assert, uniqueArray } from "fast-check";
+import { ContainerDoesNotContain, IndexOutOfBounds, LinkedList } from './linked-list';
 
 describe("Linked List", () => {
     describe("constructor", () => {

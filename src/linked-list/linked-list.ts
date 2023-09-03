@@ -9,6 +9,12 @@ export class IndexOutOfBounds extends Error {
     }
 }
 
+export class ContainerDoesNotContain<T> extends Error {
+    public constructor(element: T) {
+        super(`Container does not contain the element ${element}.`);
+    }
+}
+
 export class LinkedList<T> {
     private head: LinkedListNode<T> | null;
     
