@@ -1,3 +1,5 @@
+import { ContainerDoesNotContain } from '../errors/container-does-not-contain'
+import { ContainerIsEmpty } from '../errors/container-is-empty'
 import { IndexOutOfBounds } from '../errors/index-out-of-bounds'
 
 export class LinkedListNode<T> {
@@ -123,6 +125,34 @@ export class LinkedList<T> {
     }
 
     return pointer.value
+  }
+
+  public delete (value: T): this {
+    if (this.head === null) {
+      throw new ContainerIsEmpty()
+    }
+
+    let pointer = this.head
+    let before: LinkedListNode<T> | null = null
+
+    while (pointer.value !== value) {
+      if (pointer.next === null) {
+        throw new ContainerDoesNotContain(value)
+      }
+
+      before = pointer
+      pointer = pointer.next
+    }
+
+    if (before === null) {
+      const newNode = pointer.next
+      this.head = newNode
+
+      return this
+    }
+
+    before.next = pointer.next
+    return this
   }
 
   public toString (): string {
