@@ -1,158 +1,129 @@
-import { describe, expect, it } from 'vitest'
-import { array, nat, property, assert } from 'fast-check'
-import { ContainerDoesNotContain, IndexOutOfBounds, LinkedList } from './linked-list'
+/* eslint-disable @typescript-eslint/no-base-to-string */
+import { describe, it, expect } from 'vitest'
+import { LinkedList, LinkedListNode } from './linked-list'
+import { IndexOutOfBounds } from '../errors/index-out-of-bounds'
 
 describe('Linked List', () => {
   describe('constructor', () => {
-    it('should create a empty list if no value is passed', () => {
+    it('should create a list with an empty head if valie provided is null', () => {
       const list = new LinkedList()
       expect(list).toHaveProperty('head', null)
     })
 
-    it('should create a list with a head node if a value is passed', () => {
-      const list = new LinkedList(1)
-      expect(list).toHaveProperty('head', expect.objectContaining({ value: 1, next: null }))
-    })
-  })
-
-  describe('from', () => {
-    it('should create a linked list from an array like container', () => {
-      const container = array(nat())
-
-      assert(property(container, arr => {
-        const list = LinkedList.from(arr)
-        const listStr = list.toString()
-
-        expect(listStr).toBe(list.toString())
-      }))
+    it('should create a list with a head with the provided value', () => {
+      const list = new LinkedList(10)
+      expect(list).toHaveProperty('head', new LinkedListNode(10))
     })
   })
 
   describe('append', () => {
-    it('should insert at head if no head exists', () => {
-      const list = new LinkedList()
-      list.append(1)
+    const list = new LinkedList<number>()
 
-      expect(list).toHaveProperty('head', expect.objectContaining({ value: 1, next: null }))
+    it('should append to the head of the list if the list is empty', () => {
+      list.append(10)
+      expect(list).toHaveProperty('head', new LinkedListNode(10))
     })
 
-    it('should insert next element if head exists', () => {
-      const list = new LinkedList(1)
-      list.append(2)
-
-      expect(list).toHaveProperty('head', expect.objectContaining({
-        value: 1,
-        next: expect.objectContaining({ value: 2, next: null })
-      }))
+    it('should append to the head.next of the list if the list contains only the head', () => {
+      list.append(20)
+      expect(list.toString()).toBe('10,20')
     })
 
-    it('should insert after the last element that is not null', () => {
-      const list = new LinkedList(1)
-      list.append(2)
-      list.append(3)
+    it('should append to the final of the list', () => {
+      list
+        .append(30)
+        .append(40)
+        .append(50)
 
-      expect(list).toHaveProperty('head', expect.objectContaining({
-        value: 1,
-        next: expect.objectContaining({
-          value: 2,
-          next: expect.objectContaining({
-            value: 3,
-            next: null
-          })
-        })
-      }))
+      expect(list.toString()).toBe('10,20,30,40,50')
     })
   })
 
   describe('prepend', () => {
-    it('should insert element at head if head is null', () => {
-      const list = new LinkedList()
-      list.prepend(1)
+    const list = new LinkedList<number>()
 
-      expect(list).toHaveProperty('head', expect.objectContaining({ value: 1, next: null }))
+    it('should prepend to the head of the list if the list is empty', () => {
+      list.prepend(10)
+      expect(list).toHaveProperty('head', new LinkedListNode(10))
     })
 
-    it('should insert element before head if head is present', () => {
-      const list = new LinkedList(1)
-      list.prepend(2)
-
-      expect(list).toHaveProperty('head', expect.objectContaining({
-        value: 2,
-        next: expect.objectContaining({ value: 1, next: null })
-      }))
-    })
-
-    it('should insert before all elements', () => {
-      const list = new LinkedList(1)
-      list.append(2)
-      list.prepend(3)
-
-      expect(list).toHaveProperty('head', expect.objectContaining({
-        value: 3,
-        next: expect.objectContaining({
-          value: 1,
-          next: expect.objectContaining({
-            value: 2,
-            next: null
-          })
-        })
-      }))
-    })
-  })
-
-  describe('insert', () => {
-    it('should throw an error if the list is not long enough', () => {
-      const list = new LinkedList()
-      expect(() => list.insert(2, 2))
-        .toThrowError(IndexOutOfBounds)
-    })
-
-    it('should throw an error if the provided position is less than zero', () => {
-      const list = new LinkedList(1)
-      expect(() => list.insert(2, -10))
-        .toThrowError(IndexOutOfBounds)
-    })
-
-    it('should insert node at correct position', () => {
-      const list = new LinkedList(1)
+    it('should prepend to a list with values', () => {
       list
-        .append(2)
-        .append(3)
-        .append(4)
-        .append(5)
+        .prepend(20)
+        .prepend(30)
+        .prepend(40)
+        .prepend(50)
 
-      list.insert(10, 3)
-
-      expect(list.toString()).toBe('1, 2, 3, 10, 4, 5')
+      expect(list.toString()).toBe('50,40,30,20,10')
     })
   })
-  describe('find', () => {
-    it('should return null if the list is empty', () => {
+
+  describe('insertAt', () => {
+    it('should insertAt head if head is null and `at` === 0', () => {
+      const list = new LinkedList<number>()
+      list.insertAt(10, 0)
+
+      expect(list).toHaveProperty('head', new LinkedListNode(10))
+    })
+
+    it('should throw an IndexOutOfBounds error if `at` < 0 || `at` >= list length', () => {
       const list = new LinkedList()
-      expect(list.find(e => e === 4)).toBe(null)
+      list
+        .append(10)
+        .append(20)
+        .append(30)
+
+      expect(() => list.insertAt(10, -10))
+        .toThrowError(IndexOutOfBounds)
+
+      expect(() => list.insertAt(10, 10))
+        .toThrowError(IndexOutOfBounds)
     })
 
-    it('should return the value if it exists', () => {
-      const container = array(nat(), { minLength: 10 })
+    it('should insert the value at the specified index', () => {
+      const list = new LinkedList(10)
+      list
+        .append(20)
+        .append(30)
+        .append(40)
+        .append(50)
+        .append(60)
 
-      assert(property(container, arr => {
-        const list = LinkedList.from(arr)
-        const value = list.find(e => e === arr[6])
+      list.insertAt(70, 3)
 
-        expect(value).toBe(arr.find(e => e === arr[6]))
-      }))
+      expect(list.toString()).toBe('10,20,30,70,40,50,60')
     })
   })
 
-  describe('toArray', () => {
-    it('should convert a list to an array', () => {
-      const container = array(nat())
-      assert(property(container, arr => {
-        const list = LinkedList.from(arr)
-        const listArr = list.toArray()
+  describe('at', () => {
+    const list = new LinkedList('this is a string')
 
-        expect(listArr).toEqual(arr)
-      }))
+    it('should throw an error if head is null', () => {
+      expect(() => list.at(2))
+        .toThrowError(IndexOutOfBounds)
+    })
+
+    it('should throw an error if index is out of bounds', () => {
+      list
+        .append('abc')
+        .append('bcd')
+        .append('cde')
+        .append('def')
+
+      expect(() => list.at(10))
+        .toThrowError(IndexOutOfBounds)
+
+      expect(() => list.at(-10))
+        .toThrowError(IndexOutOfBounds)
+    })
+
+    it('should return the correct value [positive index]', () => {
+      expect(list.at(2)).toBe('bcd')
+    })
+
+    it('should return the correct value [negative index]', () => {
+      expect(list.at(-1)).toBe('def')
+      expect(list.at(-2)).toBe('cde')
     })
   })
 })

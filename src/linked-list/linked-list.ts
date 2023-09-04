@@ -1,25 +1,19 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-interface LinkedListNode<T> {
-  value: T
-  next: LinkedListNode<T> | null
-}
+import { IndexOutOfBounds } from '../errors/index-out-of-bounds'
 
-const node = <T>(value: T): LinkedListNode<T> =>
-    ({ value, next: null }) satisfies LinkedListNode<T>
+export class LinkedListNode<T> {
+  public value: T
+  public next: LinkedListNode<T> | null
 
-export class IndexOutOfBounds extends Error {
-  public constructor (index: number, length: number) {
-    super(
-            `Index ${index} is out of bounds. Container has length ${length}`
-    )
+  public constructor (value: T) {
+    this.value = value
+    this.next = null
   }
-}
 
-export class ContainerDoesNotContain<
-    T extends { toString: () => string },
-> extends Error {
-  public constructor (element: T) {
-    super(`Container does not contain the element ${element.toString()}.`)
+  public static withNext<A>(value: A, next: LinkedListNode<A>): LinkedListNode<A> {
+    const node = new LinkedListNode(value)
+    node.next = next
+
+    return node
   }
 }
 
@@ -29,36 +23,29 @@ export class LinkedList<T> {
   public length = 0
 
   public constructor (value: T | null = null) {
-    this.head = value !== null ? node(value) : null
-  }
+    this.head = value === null
+      ? null
+      : new LinkedListNode(value)
 
-  public static from<A>(container: ArrayLike<A>): LinkedList<A> {
-    const list = new LinkedList<A>()
-    const array = Array.from(container)
-
-    for (const elem of array) {
-      list.append(elem)
+    if (this.head !== null) {
+      this.length++
     }
-
-    return list
   }
 
   public append (value: T): this {
     if (this.head === null) {
-      this.head = { value, next: null }
+      this.head = new LinkedListNode(value)
       this.length++
 
       return this
     }
 
-    const node = { value, next: null }
     let pointer = this.head
-
     while (pointer.next !== null) {
       pointer = pointer.next
     }
 
-    pointer.next = node
+    pointer.next = new LinkedListNode(value)
     this.length++
 
     return this
@@ -66,84 +53,87 @@ export class LinkedList<T> {
 
   public prepend (value: T): this {
     if (this.head === null) {
-      this.head = { value, next: null }
+      this.head = new LinkedListNode(value)
       this.length++
 
       return this
     }
 
-    const tail = this.head
-    this.head = { value, next: tail }
+    const newTail = this.head
+    this.head = LinkedListNode.withNext(value, newTail)
     this.length++
 
     return this
   }
 
-  /**
-     * Inserts a value into a specified position in the linked list
-     * @throws {IndexOutOfBounds} When the provided position is less than zero or greater or equal than the list length
-     * @param value Value to be inserted in the linked list
-     * @param at Index to insert new node
-     * @returns The linked list with the new node inserted at the correct position
-     */
-  public insert (value: T, at: number): this {
-    if (at >= this.length || at < 0) {
+  public insertAt (value: T, at: number): this {
+    if (this.head === null && at === 0) {
+      this.head = new LinkedListNode(value)
+      this.length++
+
+      return this
+    }
+
+    if (at < 0 || at >= this.length || this.head === null) {
       throw new IndexOutOfBounds(at, this.length)
     }
 
-    let before: LinkedListNode<T> | null = null
     let pointer = this.head
+    let before = this.head
     let counter = 0
 
     while (counter !== at) {
       counter++
+
+      if (pointer?.next === null) {
+        throw new IndexOutOfBounds(at, this.length)
+      }
+
       before = pointer
-      pointer = pointer!.next
+      pointer = pointer.next
     }
 
-    const tail = pointer
-    const node = { value, next: tail }
-    pointer = node
-    before!.next = pointer
+    const newNode = LinkedListNode.withNext(value, pointer)
+    before.next = newNode
+    this.length++
 
     return this
   }
 
-  public find (fn: (e: T) => boolean): T | null {
-    let pointer = this.head
+  public at (value: number): T {
+    const index = value < 0
+      ? this.length - Math.abs(value)
+      : value
 
-    while (pointer !== null) {
-      if (fn(pointer.value)) {
-        return pointer.value
+    if (this.head === null || index < 0) {
+      throw new IndexOutOfBounds(index, this.length)
+    }
+
+    let pointer = this.head
+    let counter = 0
+
+    while (counter !== index) {
+      counter++
+
+      if (pointer?.next === null) {
+        throw new IndexOutOfBounds(index, this.length)
       }
 
       pointer = pointer.next
     }
 
-    return null
+    return pointer.value
   }
 
   public toString (): string {
-    const str: T[] = []
+    const values: T[] = []
 
     let pointer = this.head
     while (pointer !== null) {
-      str.push(pointer.value)
+      values.push(pointer.value)
       pointer = pointer.next
     }
 
-    return str.join(', ')
-  }
-
-  public toArray (): T[] {
-    const array: T[] = []
-
-    let pointer = this.head
-    while (pointer !== null) {
-      array.push(pointer.value)
-      pointer = pointer.next
-    }
-
-    return array
+    return values.toString()
   }
 }
