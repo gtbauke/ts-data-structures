@@ -179,4 +179,46 @@ describe('Linked List', () => {
       expect(list).toHaveProperty('head', new LinkedListNode(10))
     })
   })
+
+  describe('removeAt', () => {
+    const list = new LinkedList<number>()
+
+    it('should throw an error if list is empty', () => {
+      expect(() => list.removeAt(2))
+        .toThrowError(ContainerIsEmpty)
+    })
+
+    it('should throw an error if index is out of bounds', () => {
+      list
+        .append(1)
+        .append(2)
+
+      expect(() => list.removeAt(-2))
+        .toThrowError(IndexOutOfBounds)
+
+      expect(() => list.removeAt(10))
+        .toThrowError(IndexOutOfBounds)
+    })
+
+    it('should delete the head if only the head exists', () => {
+      const list = new LinkedList(10)
+      list.removeAt(0)
+
+      expect(list).toHaveProperty('head', null)
+    })
+
+    it('should delete a node from the list', () => {
+      const list = new LinkedList(10)
+        .append(20)
+        .append(30)
+        .append(40)
+        .append(50)
+        .append(60)
+        .append(70)
+        .append(80)
+
+      list.removeAt(3)
+      expect(list.toString()).toBe('10,20,30,50,60,70,80')
+    })
+  })
 })

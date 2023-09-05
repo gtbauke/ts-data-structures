@@ -147,11 +147,51 @@ export class LinkedList<T> {
     if (before === null) {
       const newNode = pointer.next
       this.head = newNode
+      this.length--
 
       return this
     }
 
     before.next = pointer.next
+    this.length--
+
+    return this
+  }
+
+  public removeAt (at: number): this {
+    if (this.head === null) {
+      throw new ContainerIsEmpty()
+    }
+
+    if (at < 0 || at >= this.length) {
+      throw new IndexOutOfBounds(at, this.length)
+    }
+
+    let counter = 0
+    let pointer = this.head
+    let before: LinkedListNode<T> | null = null
+
+    while (counter !== at) {
+      if (pointer.next === null) {
+        throw new IndexOutOfBounds(at, this.length)
+      }
+
+      before = pointer
+      counter++
+      pointer = pointer.next
+    }
+
+    if (before === null) {
+      const newNode = pointer.next
+      this.head = newNode
+      this.length--
+
+      return this
+    }
+
+    before.next = pointer.next
+    this.length--
+
     return this
   }
 
