@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import { describe, it, expect } from 'vitest'
+import { property, assert, array, nat } from 'fast-check'
 import { LinkedList, LinkedListNode } from './linked-list'
 import { IndexOutOfBounds } from '../errors/index-out-of-bounds'
 import { ContainerIsEmpty } from '../errors/container-is-empty'
@@ -219,6 +220,20 @@ describe('Linked List', () => {
 
       list.removeAt(3)
       expect(list.toString()).toBe('10,20,30,50,60,70,80')
+    })
+  })
+
+  describe('from / toArray', () => {
+    const containers = array(nat())
+
+    it('should convert array to list and list to array', () => {
+      assert(property(containers, arr => {
+        const list = LinkedList.from(arr)
+        const listArr = list.toArray()
+
+        expect(list.toString()).toBe(listArr.toString())
+        expect(listArr).toEqual(arr)
+      }))
     })
   })
 })

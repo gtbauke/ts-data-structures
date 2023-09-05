@@ -34,6 +34,17 @@ export class LinkedList<T> {
     }
   }
 
+  public static from<A>(values: ArrayLike<A>): LinkedList<A> {
+    const array = Array.from(values)
+    const list = new LinkedList<A>()
+
+    for (const elem of array) {
+      list.append(elem)
+    }
+
+    return list
+  }
+
   public append (value: T): this {
     if (this.head === null) {
       this.head = new LinkedListNode(value)
@@ -193,6 +204,18 @@ export class LinkedList<T> {
     this.length--
 
     return this
+  }
+
+  public toArray (): T[] {
+    const values: T[] = []
+
+    let pointer = this.head
+    while (pointer !== null) {
+      values.push(pointer.value)
+      pointer = pointer.next
+    }
+
+    return values
   }
 
   public toString (): string {
