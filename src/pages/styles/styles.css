@@ -1,0 +1,11 @@
+.node {
+  background-color: #00000f;
+  color: white;
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

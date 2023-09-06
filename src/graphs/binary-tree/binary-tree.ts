@@ -54,6 +54,35 @@ export class BinaryTree<T> {
     return this
   }
 
+  public inOrderTraversal (onNode: (node: BinaryTreeNode<T>) => void): T[] {
+    const values: T[] = []
+
+    if (this.root === null) {
+      return values
+    }
+
+    const stack: Array<BinaryTreeNode<T>> = []
+    let current: BinaryTreeNode<T> | null = this.root
+
+    while (current !== null || stack.length > 0) {
+      while (current !== null) {
+        stack.push(current)
+        current = current.left
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      current = stack.pop()!
+
+      onNode(current)
+
+      values.push(current.value)
+
+      current = current.right
+    }
+
+    return values
+  }
+
   public toString (): string {
     return this.root === null
       ? '()'
